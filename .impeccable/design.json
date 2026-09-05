@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-05T19:06:28.696059+00:00",
+  "title": "Plugin Hub \u2014 minimal jelly workspace",
+  "extensions": {
+    "shadows": [
+      {
+        "name": "context-popover",
+        "value": "0 9px 26px #252b3d12",
+        "purpose": "Small temporary action surface."
+      },
+      {
+        "name": "jelly-fallback",
+        "value": "inset 3px 4px 10px #ffffffbb, inset -3px -5px 9px #7786aa25, 0 5px 6px #7786aa10",
+        "purpose": "Sculpted translucent fallback when WebGL is unavailable."
+      },
+      {
+        "name": "marketplace-drawer",
+        "value": "0 16px 70px #292e422b",
+        "purpose": "Temporary right-hand marketplace surface."
+      },
+      {
+        "name": "rail-action-panel",
+        "value": "0 10px 35px #1d243326",
+        "purpose": "Anchored native rail action panel."
+      },
+      {
+        "name": "rail-jelly-fallback",
+        "value": "inset 2px 3px 6px #ffffffaa,0 4px 8px #8796b41a",
+        "purpose": "Small native rail fallback when WebGL is unavailable."
+      }
+    ],
+    "motion": [
+      {
+        "name": "hover-squeeze",
+        "value": "620ms; per-keyframe cubic-bezier(.4,0,.2,1)",
+        "purpose": "Finite independent scale squash/stretch; retrigger captures current scale before canceling. Preserves the Quick Output transform."
+      },
+      {
+        "name": "landing-bounce",
+        "value": "680ms; per-keyframe cubic-bezier(.4,0,.2,1)",
+        "purpose": "Finite independent scale landing settle; retriggers continuously and preserves the Quick Output transform."
+      },
+      {
+        "name": "mesh-tilt",
+        "value": "32 frames; interpolation 0.16",
+        "purpose": "Pointer-following Three.js tilt; no endless render loop. Reduced motion suppresses tilt and bounce."
+      },
+      {
+        "name": "drop-handoff",
+        "value": "300ms ease-out",
+        "purpose": "Original-node transition from release rectangle to destination; one landing per drop, rollback on failure, bypassed for reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "1500px"
+      },
+      {
+        "name": "compact",
+        "value": "950px"
+      },
+      {
+        "name": "stacked",
+        "value": "720px"
+      },
+      {
+        "name": "small-phone",
+        "value": "390px"
+      },
+      {
+        "name": "rail-narrow",
+        "value": "600px"
+      }
+    ],
+    "sidebarStack": {
+      "iconSize": "100px",
+      "panelWidth": "146px",
+      "opening": "680ms spring-like transform; stagger capped at 190ms",
+      "closing": "320ms",
+      "sections": [
+        "Equipped",
+        "Available"
+      ],
+      "navigation": [
+        "Plugin Hub",
+        "Awesome Plugins marketplace",
+        "DeepSeek return from Hub"
+      ],
+      "columns": 1,
+      "background": "transparent; dashed tray outlines only",
+      "resting": "partly clipped at sidebar edge; opaque pastel depth layers",
+      "drag": "original card; pointer capture; live equip/unload; failure rollback"
+    }
+  },
+  "components": [
+    {
+      "name": "Run",
+      "kind": "button",
+      "description": "Single dark execution action; pale disabled state.",
+      "html": "<button class=\"ds-run\">\u25b7 Run</button>",
+      "css": ".ds-run{border:0;border-radius:12px;background:#34353b;color:#fff;padding:13px 18px;font:500 12px -apple-system,BlinkMacSystemFont,\"Helvetica Neue\",sans-serif;cursor:pointer}.ds-run:hover:not(:disabled){background:#505159}.ds-run:active:not(:disabled){transform:scale(.95)}.ds-run:disabled{background:#efeff2;color:#a1a2aa}.ds-run:focus-visible{outline:3px solid #7a98d1;outline-offset:5px}"
+    },
+    {
+      "name": "Input",
+      "kind": "input",
+      "description": "Quiet field within Quick Output.",
+      "html": "<input class=\"ds-input\" aria-label=\"Input\" placeholder=\"Input\">",
+      "css": ".ds-input{height:42px;border:1px solid #eeeef2;border-radius:12px;padding:0 13px;background:#f7f7f9;color:#50515d;font:12px -apple-system,BlinkMacSystemFont,\"Helvetica Neue\",sans-serif}.ds-input::placeholder{color:#74757e}.ds-input:disabled{opacity:.55}.ds-input:focus-visible{outline:3px solid #7a98d1;outline-offset:5px}"
+    },
+    {
+      "name": "Plugin tray",
+      "kind": "custom",
+      "description": "Dashed Equipped or Available destination with a restrained drop highlight.",
+      "html": "<div class=\"ds-tray\" role=\"group\" aria-label=\"Equipped Plugins\"><span aria-hidden=\"true\">\uff0b</span></div>",
+      "css": ".ds-tray{min-height:233px;border:1.5px dashed #d3d5db;border-radius:25px;padding:38px 24px 26px;display:flex;align-items:center;justify-content:center;color:#c5c8cf}.ds-tray.ds-drop-over{background:#f0f3fb;border-color:#a4b6d1}"
+    },
+    {
+      "name": "Plugin actions",
+      "kind": "custom",
+      "description": "Contextual Equip, Try out, and Return buttons; current destination is hidden in the live popover.",
+      "html": "<div class=\"ds-actions\" role=\"group\" aria-label=\"Plugin actions\"><button>Equip</button><button>Try out</button><button>Return</button></div>",
+      "css": ".ds-actions{width:130px;border:1px solid #e7e7ec;border-radius:14px;padding:5px;background:#fff;box-shadow:0 9px 26px #252b3d12}.ds-actions button{display:block;width:100%;border:0;background:none;color:#303137;text-align:left;font:12px -apple-system,BlinkMacSystemFont,\"Helvetica Neue\",sans-serif;padding:11px 13px;border-radius:9px;cursor:pointer}.ds-actions button:hover,.ds-actions button:focus-visible{background:#f2f3f7}.ds-actions button:focus-visible{outline:3px solid #7a98d1;outline-offset:5px}"
+    },
+    {
+      "name": "Quick Output",
+      "kind": "custom",
+      "description": "White output surface; actual execution text wraps and elapsed time aligns right.",
+      "html": "<div class=\"ds-output\"><pre>\u2014</pre><span>0 ms</span></div>",
+      "css": ".ds-output{border:1px solid #e5e6ea;border-radius:25px;background:#fff;padding:24px;color:#61636f}.ds-output pre{font:400 14px/1.7 -apple-system,BlinkMacSystemFont,\"Helvetica Neue\",sans-serif;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}.ds-output span{display:block;text-align:right;padding-top:18px;font:10px -apple-system,BlinkMacSystemFont,\"Helvetica Neue\",sans-serif;color:#777985;font-variant-numeric:tabular-nums}"
+    },
+    {
+      "name": "Browse",
+      "kind": "button",
+      "description": "Quiet drawer entry beside Available Plugins.",
+      "html": "<button class=\"ds-browse\" aria-expanded=\"false\">Browse \uff0b</button>",
+      "css": ".ds-browse{display:flex;align-items:center;gap:5px;background:none;border:0;padding:4px;font:12px -apple-system,BlinkMacSystemFont,\"Helvetica Neue\",sans-serif;color:#61636f;cursor:pointer}.ds-browse:focus-visible{outline:3px solid #7a98d1;outline-offset:5px}"
+    },
+    {
+      "name": "Marketplace drawer",
+      "kind": "custom",
+      "description": "Scrollable search/category drawer with expandable rows, setup disclosure and real installation states.",
+      "html": "<aside class=\"ds-market\"><h2>Marketplace</h2><div class=\"ds-filters\"><input aria-label=\"Search plugins\" placeholder=\"Search plugins\"><select aria-label=\"Category\"><option>All categories</option></select></div><details open><summary><span class=\"ds-mark\">P</span>Plugin name</summary><div class=\"ds-detail\"><p>Plugin description</p><code>package-name</code><div class=\"ds-row\"><a href=\"#\">Source \u2197</a><button>Install</button></div><p class=\"ds-note\">Installs third-party code. New bundle layers may need restart; Quick Output is not supported. Build scripts stay disabled.</p></div></details></aside>",
+      "css": ".ds-market{box-sizing:border-box;width:min(440px,100%);padding:24px;border-radius:24px;background:#fff;box-shadow:0 16px 70px #292e422b;font:12px -apple-system,BlinkMacSystemFont,\"Helvetica Neue\",sans-serif;color:#303137;overflow:auto}.ds-market h2{font-size:17px;font-weight:550;margin:0 0 24px;letter-spacing:-.025em}.ds-filters{display:flex;gap:8px;margin-bottom:18px}.ds-filters input,.ds-filters select{box-sizing:border-box;min-width:0;border:0;border-radius:10px;padding:11px;background:#f4f4f7;color:#4d4e59;font:inherit}.ds-filters input{width:58%}.ds-filters select{width:42%}.ds-market details{border-bottom:1px solid #eeeef2}.ds-market summary{list-style:none;display:flex;align-items:center;gap:12px;padding:15px 0;font-size:13px;cursor:pointer}.ds-mark{flex:0 0 38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#e4e8f780;color:#727e9f;box-shadow:inset 2px 3px 4px #fff,0 3px 8px #b2b8ce20}.ds-detail{padding:0 0 18px 50px;line-height:1.6}.ds-detail p{margin:0 0 12px;color:#636571}.ds-detail code{display:block;overflow-wrap:anywhere;font-size:11px}.ds-detail .ds-note{font-size:11px;color:#737580}.ds-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:16px 0}.ds-row a{color:inherit;text-underline-offset:3px}.ds-row button{background:#34353b;color:#fff;padding:9px 15px;border-radius:10px;border:0;font:inherit;cursor:pointer}.ds-row button:disabled{background:#efeff3;color:#737580}.ds-market :focus-visible{outline:3px solid #7a98d1;outline-offset:3px}"
+    },
+    {
+      "name": "Installed bundle",
+      "kind": "custom",
+      "description": "Shared jelly plugin button; manageable packages support drag and Equip / Unload plus Details. Quick Output requires an adapter. This snippet shows the CSS fallback.",
+      "html": "<button class=\"ds-bundle\" aria-label=\"Plugin name, available. Open actions.\" aria-haspopup=\"true\"><span class=\"ds-bundle-art\"><span class=\"ds-bundle-fallback\"></span><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"4\" y=\"4\" width=\"6\" height=\"6\" rx=\"2\"/><rect x=\"14\" y=\"4\" width=\"6\" height=\"6\" rx=\"2\"/><rect x=\"4\" y=\"14\" width=\"6\" height=\"6\" rx=\"2\"/><path d=\"M17 14v6m-3-3h6\"/></svg></span><span>Plugin name</span></button>",
+      "css": ".ds-bundle{width:128px;padding:0;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:7px;border-radius:24px;font:450 12px/1.4 -apple-system,BlinkMacSystemFont,\"Helvetica Neue\",sans-serif;color:#656671;cursor:grab}.ds-bundle-art{position:relative;display:grid;place-items:center;width:110px;height:110px}.ds-bundle-fallback{position:absolute;inset:11px;border-radius:26px;background:#cddbf180;border:1px solid #ffffffb3;box-shadow:inset 3px 4px 10px #ffffffbb,inset -3px -5px 9px #7786aa25,0 5px 6px #7786aa10;transform:perspective(400px) rotateX(9deg) rotateY(-10deg)}.ds-bundle svg{position:relative;width:39px;height:39px;fill:none;stroke:#8595b6;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}.ds-bundle:active{cursor:grabbing}.ds-bundle:focus-visible{outline:3px solid #7a98d1;outline-offset:5px}"
+    },
+    {
+      "name": "Native sidebar rail",
+      "kind": "nav",
+      "description": "Additive rail beside the preserved native sidebar: 68px, 54px at 600px and below. Available art is quieter; equipped art has a dot. SVG and CSS fallback preview.",
+      "html": "<nav class=\"ds-rail\" aria-label=\"Plugin Hub\"><a class=\"ds-rail-home\" href=\"/plugin-hub\" aria-label=\"Open Plugin Hub\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 5h5v5H5zM14 5h5v5h-5zM5 14h5v5H5zM17 14v6m-3-3h6\"/></svg></a><button class=\"ds-rail-icon\" data-equipped aria-label=\"Plugin name, equipped\" aria-haspopup=\"dialog\"><span class=\"ds-rail-art\"><span class=\"ds-rail-fallback\"></span><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 5h5v5H5zM14 5h5v5h-5zM5 14h5v5H5zM17 14v6m-3-3h6\"/></svg></span><span class=\"ds-rail-dot\"></span></button></nav>",
+      "css": ".ds-rail{width:68px;display:flex;flex-direction:column;align-items:center;gap:20px;padding:24px 0 12px;background:var(--dsw-specific-sidebar-fill,#f8f9fb);border-right:1px solid var(--dsw-alias-border-l3,#e8e9ee);color:var(--dsw-alias-text-primary,#33353c)}.ds-rail svg{position:relative;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}.ds-rail-home{width:42px;height:36px;display:grid;place-items:center;color:inherit;border-radius:12px;opacity:.75}.ds-rail-home:hover{background:#8796b414;opacity:1}.ds-rail-icon{position:relative;width:60px;height:64px;display:grid;place-items:center;padding:0;border:0;border-radius:15px;background:none;color:#8595b6;cursor:pointer}.ds-rail-art{position:relative;display:grid;place-items:center;width:58px;height:58px;opacity:.64;transition:opacity .2s}.ds-rail-fallback{position:absolute;inset:7px;border-radius:14px;background:#cddbf180;box-shadow:inset 2px 3px 6px #ffffffaa,0 4px 8px #8796b41a}.ds-rail-icon[data-equipped] .ds-rail-art,.ds-rail-icon:hover .ds-rail-art{opacity:1}.ds-rail-dot{position:absolute;bottom:0;left:28px;width:4px;height:4px;border-radius:50%;background:#7b9d8d;opacity:0}.ds-rail-icon[data-equipped] .ds-rail-dot{opacity:1}.ds-rail :focus-visible{outline:2px solid #7a98d1;outline-offset:2px}.ds-rail-icon:disabled{cursor:wait}@media(max-width:600px){.ds-rail{width:54px;gap:12px}.ds-rail-icon{width:50px}.ds-rail-art{width:50px;height:50px}.ds-rail-dot{left:23px}}@media(prefers-reduced-motion:reduce){.ds-rail-art{transition:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Minimal jelly workspace",
+    "overview": "English-only Apple-like workspace: Equipped Plugins and Available Plugins in dashed trays, with Quick Output alongside. Soft blue, lavender, and honey translucent Three.js icons provide the expressive decoration. Marketplace discovery extends Available through a quiet Browse control and temporary drawer, preserving the incumbent three-section composition. The native main application adds a compact vertical plugin rail beside its existing sidebar; the standalone `/plugin-hub` route stays sidebar-free.",
+    "keyCharacteristics": [
+      "Three areas, spacious neutral canvas",
+      "One original DOM node per tool or installed package in the standalone Hub; no drag clones",
+      "Real rounded Three.js forms with opacity 0.55 and CSS fallback",
+      "Finite jelly motion with reduced-motion support",
+      "Quiet marketplace drawer with collapsible details and real installation status",
+      "Additive native rail that preserves the original sidebar and conversations"
+    ],
+    "rules": [
+      {
+        "name": "One plugin, one node",
+        "body": "In the standalone Hub, reuse each original tool or installed-package button across refreshes and moves. Included tools can occupy Equipped, Available, or the single Quick Output seat; manageable installed packages move between Equipped and Available. A pending drop places the original button immediately; backend acknowledgement confirms placement and failure restores the confirmed state.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Use the system font and compact English names.",
+      "Keep keyboard actions equivalent to included-tool drag destinations.",
+      "Return a replaced Quick Output occupant to Available.",
+      "Keep catalog descriptions and setup notes inside expanded marketplace rows.",
+      "Use the common jelly icon and action menu for installed packages; base equipment state on confirmed runtime data."
+    ],
+    "donts": [
+      "Keep `/plugin-hub` sidebar-free and preserve the native main application sidebar beside its additive rail. Do not restore the Hub profile/status badge, runtime foundation cards, subtitles, or activity feed.",
+      "Do not duplicate icons while dragging.",
+      "Do not introduce infinite animation.",
+      "Do not offer live Equip / Unload without a manageable runtime entry, or Quick Output without a tool-specific adapter."
+    ]
+  }
+}

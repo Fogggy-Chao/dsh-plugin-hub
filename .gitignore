@@ -1,0 +1,18 @@
+node_modules/
+.runtime/
+artifacts/*.log
+harness/
+.runtime-pack/
+
+# Local dependencies, runtime state, and generated packages
+.pnpm-store/
+artifacts/
+.env
+.env.*
+!.env.example
+.DS_Store
+
+# Local research and visual review captures
+work/
+.impeccable/review/
+agent-harness-*.md

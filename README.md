@@ -1,0 +1,97 @@
+# Plugin Hub
+
+A minimal equipment workspace for DeepSeek Harness.
+
+## Run
+
+Node.js 24+ and pnpm:
+
+```sh
+pnpm install --ignore-scripts
+pnpm start
+```
+
+Open http://127.0.0.1:3080/plugin-hub . Use `PORT=3081 pnpm start` for another port. The launcher creates its own `.runtime/` home without changing your existing Harness profiles.
+
+## Three sections
+
+- **Equipped Plugins:** drag a plugin here to register its tool in the running Harness.
+- **Available Plugins:** return a plugin here to dispose its registration.
+- **Quick Output:** drag a plugin here, enter an input and press Run. The tool is temporarily mounted, executed through Harness, then disposed, including on errors. Replacing the tryout returns its previous plugin to Available.
+
+Each plugin icon exists in only one section. Click an icon for keyboard/touch-friendly actions. Drag Escape cancels the move. The interface is entirely English, with real translucent Three.js icons, finite jelly animations and reduced-motion support.
+
+Included tools: Hello, Text Studio and World Clock. No model API key is needed for direct tool tryouts.
+
+## Bundle installation
+
+```sh
+pnpm pack --out artifacts/dsh-plugin-hub-0.5.1.tgz
+dsh plugin --profile web add ./artifacts/dsh-plugin-hub-0.5.1.tgz
+dsh --profile web
+```
+
+Visit `/plugin-hub` on the resulting Web server. This is an independent route in the Harness Web process; it does not replace the original chat page. Bundled JavaScript requires no build scripts. Three.js 0.180.0 browser modules and its MIT license ship under `public/vendor/`.
+
+## Scope
+
+Tested with Harness 0.1.2-rc.1 and Cordis 4.0.2. Local loopback only, accessed through 127.0.0.1. Mutations enforce Host, same-origin Origin, custom header and input limits.
+
+Equipment lasts for the current process and can affect its sessions. It is not saved to the profile. Quick Output staging is local to the browser page; refresh returns staged plugins to Available. The three included tools support live equip and Quick Output. Marketplace bundles install persistently into the explicit DSH_HOME/profile through the official CLI; new bundle layers may require restart because this version does not recompose the running bundle stack. Loaded package modules support live equip/unload through their Loader entries. Quick Output still requires a tool-specific adapter. Custom configuration, build-dependent packages and live model-dialog verification remain outside this version. The profileLabel must name the actual installation profile.
+
+## Test
+
+With the development server running:
+
+```sh
+pnpm test
+# Alternate port:
+HUB_TEST_URL=http://127.0.0.1:3081 pnpm test
+```
+
+Tests verify actual registration, execution, cleanup, idempotence, unchanged PID, invalid inputs, cross-origin rejection, temporary tryout cleanup and protection against duplicate registration. Tests clean up the included tools.
+
+## Source
+
+- `src/index.js`: bundle entry and HTTP boundary.
+- `src/controller.js`: serialized lifecycle and temporary tryouts.
+- `src/catalog.js`: real tool definitions.
+- `public/app.js`: unique icon placement, drag and menu interactions.
+- `public/jelly.js`: 3D material and finite jelly animation.
+- `scripts/start.mjs`: official profile launcher.
+
+Upstream source in `harness/` is an unmodified reference checkout and is excluded from the bundle.
+
+## Marketplace
+
+Choose **Browse** beside Available Plugins. Search or filter the bundled English catalog, expand a result, then Install a published npm bundle. Git-only entries provide source instructions. Installation verifies bundle metadata, pins the current npm version, disables build scripts, serializes jobs, and reports real progress/errors. New packages appear in Available with a Restart action when their bundle is not loaded. Confirmed loaded modules appear in Equipped. The project launcher supports one-click restart and browser reconnection; other launchers must be restarted manually. Installation requires explicit DSH_HOME and pnpm on PATH.
+
+Catalog source: https://awesome-dsh-plugin.com/ . This build includes a 2026-09-06 snapshot of 3,196 entries, including 1,542 package references. Refresh from the repository root with `python3 scripts/sync-marketplace.py`. This changes the bundled snapshot; the browser does not fetch the catalog website at runtime.
+
+Marketplace unit tests cover input rejection, job serialization, pinned versions, profile persistence and failed/non-bundle installation. A real CLI smoke test installed dsh-status-rotator 0.13.0 into the isolated `.runtime/marketplace-check` profile with scripts disabled. It was not activated in the main preview.
+
+## Reload and restart
+
+Cordis supports live plugin lifecycle and HMR. In the installed Harness 0.1.2-rc.1 launcher, bundle layers are captured at boot; the live watchers re-read user patches, not the package.json bundle list. Hub installs packages through the CLI but does not yet recompose that list live. Restart is a composition fallback, not a requirement of every plugin. The API checks loaded modules and compares installed dependencies with the startup snapshot before displaying a restart action.
+
+With `pnpm start`, an IPC message asks the parent launcher to gracefully stop and relaunch its own child. The browser polls for a changed PID and reconnects. Unmanaged hosts reject this endpoint, and installs in progress block restart. Clicking Restart disconnects running sessions and resets process-only equipment. New plugin icons use the same Three.js jelly fallback, finite hover/landing animation, tilt and reduced-motion behavior as included tools.
+
+Verification: ten tests pass, including loaded-vs-restart status and rejection of foreign-origin restart requests. A live restart/reconnect test has not been performed; automatic approval review blocked that test because it could disconnect sessions.
+
+## Installed plugin lifecycle
+
+Installed modules now use the same unique icon, jelly behavior, drag handler and action menu as demo tools. Click **Unload** or drag Equipped → Available to disable their Loader entries and dispose runtime effects. Drag back or choose **Equip** to reactivate the same entries with existing configuration. The package remains installed. These toggles are process-only; a profile recomposition or restart can restore the persisted bundle. Unknown/unloaded bundle layers still use the restart flow. Quick Output is hidden for external modules without an adapter.
+
+Verified: mascot route disposal, live re-equip, unchanged PID during equipment changes, one DOM node, menu actions and drag in both directions. All 13 tests pass. The latest preview now runs on http://127.0.0.1:3080/ with the sidebar extension.
+
+Drag placement is immediate while the runtime change is pending. A 300ms transition continues from the release position into the destination tray, with one jelly landing. Backend success does not replay motion; failure reconciles to the confirmed state with a return transition. Pending operations keep further actions disabled and expose aria-busy.
+
+## Main UI sidebar extension
+
+The bundle now declares a native browser plugin through dsh.client and exports ./client. It registers an additive shell.overlay entry. A vertical rail follows the sidebar boundary and reserves 68px beside the conversation (54px on narrow screens). It uses the existing Hub APIs, local jelly renderer, accessible icon names, a small action popover, and an Open Hub shortcut. It refreshes equipment state every three seconds while visible.
+
+The mascot 0.1.0 browser bundle references the removed @deepseek-ai/dsh-client-runtime/client API in this Harness build. It is currently unloaded in the preview to keep the main UI operational; it remains installed. Re-equipping it can reproduce that third-party browser boot error. Its compatibility repair is separate from the rail.
+
+The main sidebar extension now rests as overlapping 100px jelly cards. Hover or activate the stack to unfold Equipped and Available dashed zones. The same card elements transition between stack and grid, with a capped stagger and reduced-motion support. The footer opens the searchable marketplace in Hub; the DeepSeek logo in Hub returns to the main interface.
+
+Sidebar stack refinement: cards rest partially occluded at the native sidebar edge, with opaque pastel depth layers that suppress visual clutter. Expanded equipment uses transparent dashed trays in a single column, without any background panel. Pointer dragging moves the original card, highlights the destination, auto-scrolls near the tray edges, and calls live equip/unload on drop. Failed actions restore the previous state. Verified real drag in both directions on the main UI.
