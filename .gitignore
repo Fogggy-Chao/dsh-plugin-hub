@@ -16,3 +16,6 @@ artifacts/
 work/
 .impeccable/review/
 agent-harness-*.md
+
+# Machine-specific development patch
+dev.patch.yml
