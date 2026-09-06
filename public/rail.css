@@ -46,9 +46,7 @@
 
 /* The sidebar edge occludes the resting stack; the open trays have no backing plate. */
 #hub-sidebar-extension:not([data-expanded]) {clip-path:inset(-20px -30px -20px 0);}
-#hub-sidebar-extension:not([data-expanded]) .hub-rail-fallback {opacity:1;background:var(--stack-color);box-shadow:inset 2px 3px 5px #ffffffbd,inset -2px -4px 4px #69758d28,1px 4px 0 #a6b0c155,3px 8px 10px #52627a24;}
 #hub-sidebar-extension:not([data-expanded]) .hub-rail-card:not(:first-of-type) .hub-rail-glyph {opacity:0;}
-#hub-sidebar-extension:not([data-expanded]) .hub-rail-art canvas {opacity:.32;}
 .hub-rail-heading {padding:0 2px;font-size:11px;}
 .hub-rail-heading svg {width:13px!important;height:13px!important;}
 .hub-rail-heading button {padding:4px;}
@@ -60,3 +58,12 @@
 [data-expanded] .hub-rail-icon:not(:disabled) {cursor:grab;}
 [data-dragging] .hub-rail-icon {cursor:grabbing;}
 .hub-rail-menu {left:8px;right:auto;width:196px;max-width:calc(100vw - 80px);}
+
+/* Keep names attached to the original draggable card. */
+[data-expanded] .hub-rail-card,[data-expanded] .hub-rail-icon {height:132px;}
+.hub-rail-icon {display:flex;flex-direction:column;justify-content:flex-start;}
+.hub-rail-art {flex:none;}
+.hub-rail-glyph {color:var(--jelly-ink,#174b85);}
+.hub-rail-name {display:none;}
+[data-expanded] .hub-rail-name {display:block;width:112px;min-height:28px;margin-top:0;text-align:center;font-size:11px;font-weight:550;line-height:14px;color:var(--dsw-alias-text-primary,#303644);overflow-wrap:anywhere;}
+.hub-rail-fallback {background:var(--jelly-tint,#9fd0ff);}

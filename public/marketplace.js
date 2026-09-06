@@ -27,9 +27,9 @@ async function load() {
       }
     }
     render(); renderInstalled()
-    restartButton.hidden=!catalog.plugins.some(p=>p.restartRequired)
+    restartButton.hidden=!catalog.restartSupported&&!catalog.plugins.some(p=>p.restartRequired)
     restartButton.disabled=restarting||!catalog.restartSupported
-    if (!catalog.restartSupported) restartButton.title='Run pnpm start to enable one-click restart.'
+    if (!catalog.restartSupported) restartButton.title='This Node runtime cannot restart in place. Restart DSH in your terminal.'
     clearTimeout(timer)
     if (catalog.plugins.some(p => p.job?.status === 'installing')) timer = setTimeout(load, 1800)
   } catch (error) { loadFailed = true; message(error.message); $('#market-more').hidden=false; $('#market-more').textContent='Retry' }
@@ -94,7 +94,7 @@ async function restart() {
       try {
         const res=await fetch('/plugin-hub/api/state',{cache:'no-store',signal:AbortSignal.timeout(2000)})
         const state=await res.json()
-        if(res.ok && state.pid!==response.pid) {location.reload();return}
+        if(res.ok && (response.bootId ? state.bootId && state.bootId!==response.bootId : state.pid!==response.pid)) {location.reload();return}
       } catch {}
     }
     throw new Error('Harness has not reconnected. Check the launcher terminal, then refresh.')

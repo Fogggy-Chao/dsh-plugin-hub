@@ -129,3 +129,7 @@ The native main UI extension rests as overlapping, individually rotated 100px je
 ### Current sidebar stack refinement
 
 Supersedes the 250px two-column panel: use a 146px transparent extension, with single-column 100px icons in two dashed trays and no shared background or shadow plate. Clip the collapsed card stack at the sidebar edge so about half each card remains hidden. Solid pastel underlayers, beveled inset lighting, and a short directional edge shadow make the overlapping material legible; suppress rear glyphs while collapsed. Pointer capture moves the original card without clones, highlights valid drop zones, and auto-scrolls near edges. Drop uses optimistic equipment placement with the existing live lifecycle endpoints; rollback restores confirmed state after a failed call. Escape, cancellation, or a drop outside trays returns the card. Preserve keyboard menu actions and reduced-motion support.
+
+Sidebar icons now include centered 11px medium-weight names below the original draggable icon, with a 140px row pitch and wrapping for package names. Labels are hidden in the collapsed stack. Native rail jelly uses saturated blue, violet, amber and mint, with dark matching symbols and a brighter solid fallback; the standalone Hub renderer keeps its existing appearance.
+
+Collapsed and expanded cards share identical jelly material, canvas opacity, and fallback colors. Collapse changes position and occlusion only; no additional tint or opacity layer is applied.

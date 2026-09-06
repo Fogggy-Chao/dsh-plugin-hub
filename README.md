@@ -26,8 +26,10 @@ Included tools: Hello, Text Studio and World Clock. No model API key is needed f
 ## Bundle installation
 
 ```sh
-pnpm pack --out artifacts/dsh-plugin-hub-0.5.1.tgz
-dsh plugin --profile web add ./artifacts/dsh-plugin-hub-0.5.1.tgz
+pnpm pack --out artifacts/dsh-plugin-hub-0.6.4.tgz
+mkdir -p "$HOME/.dsh/bundles"
+cp ./artifacts/dsh-plugin-hub-0.6.4.tgz "$HOME/.dsh/bundles/"
+dsh plugin --profile web add "$HOME/.dsh/bundles/dsh-plugin-hub-0.6.4.tgz"
 dsh --profile web
 ```
 
@@ -95,3 +97,11 @@ The mascot 0.1.0 browser bundle references the removed @deepseek-ai/dsh-client-r
 The main sidebar extension now rests as overlapping 100px jelly cards. Hover or activate the stack to unfold Equipped and Available dashed zones. The same card elements transition between stack and grid, with a capped stagger and reduced-motion support. The footer opens the searchable marketplace in Hub; the DeepSeek logo in Hub returns to the main interface.
 
 Sidebar stack refinement: cards rest partially occluded at the native sidebar edge, with opaque pastel depth layers that suppress visual clutter. Expanded equipment uses transparent dashed trays in a single column, without any background panel. Pointer dragging moves the original card, highlights the destination, auto-scrolls near the tray edges, and calls live equip/unload on drop. Failed actions restore the previous state. Verified real drag in both directions on the main UI.
+
+Marketplace installation resolves the home with Harness’s own resolver: custom DSH_HOME when set, otherwise ~/.dsh. The same resolved home is forwarded explicitly to the installer subprocess, so a normal dsh web launch supports marketplace installation.
+
+## Restart from a normal terminal launch
+
+On Node runtimes with process.execve (including the tested macOS Node 22.15 and Node 24), Restart works with dsh web. The host disposes its root plugin tree, then replaces itself with the same Node executable, launch arguments and environment. Terminal ownership and PID are preserved. The browser uses a fresh boot ID to detect reconnection. Active sessions disconnect during restart. Managed development launches keep their IPC restart path; unsupported runtimes explain that a terminal restart is required.
+
+Use the same pnpm major version for profile setup and subsequent marketplace installs. Store local release archives under ~/.dsh/bundles rather than Documents so later installs can read them from a normal terminal.
