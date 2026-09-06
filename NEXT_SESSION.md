@@ -1,6 +1,6 @@
 # Development handoff
 
-Current checkpoint: Plugin Hub 0.5.1.
+Current checkpoint: Plugin Hub 0.6.4.
 
 ## Implemented
 
@@ -20,7 +20,9 @@ The current development machine already has the preview running on port 3080. Ch
 - Equipment changes are process-only; restart can restore persisted bundle settings.
 - Installed bundles may need a restart to join the host's boot-time bundle composition.
 - External plugins need an adapter for Quick Output.
-- The installed mascot 0.1.0 references an incompatible browser API in this Harness version. It is intentionally unloaded in the local preview; re-enabling it may block the native main UI.
+- The mascot 0.1.0 browser bundle was incompatible in the development preview; do not assume arbitrary third-party bundles can activate without checking their compatibility.
 - No model API key is configured in this preview. Direct demo tools work without one.
 
 No additional feature scope has been selected for the next session.
+
+Latest changes: global marketplace home/CLI resolution, normal dsh web restart via execve and boot-ID reconnection, brighter sidebar icons with expanded-only names and identical collapsed colors. Verified real marketplace installation of dsh-better-sidebar 0.18.0 and a browser Restart click. Eleven focused regression tests pass. Global profile uses pnpm 10.9 and archives in ~/.dsh/bundles; avoid installing through the bundled pnpm 11.

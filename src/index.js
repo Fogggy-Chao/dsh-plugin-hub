@@ -3,6 +3,7 @@ import Schema from '@deepseek-ai/schemastery'
 import { createMarketplace } from './marketplace.js'
 import { createInstalledLifecycle } from './installed-lifecycle.js'
 import { createController } from './controller.js'
+import { createRestart } from './restart.js'
 
 export const name = 'plugin-hub'
 export const inject = ['webServer', 'tools']
@@ -12,7 +13,8 @@ export function apply(ctx, config) {
   if (ctx.webServer.host !== '127.0.0.1') throw new Error('Plugin Hub only supports a loopback Web server.')
   ctx.on('webserver/index-inject', table => table.push({kind:'html',placement:'head',html:'<link rel="stylesheet" href="/plugin-hub/rail.css">'}))
   const controller = createController(ctx, config.profileLabel)
-  const restartSupported = process.env.DSH_HUB_MANAGED === '1' && process.connected && typeof process.send === 'function'
+  const restartControl = createRestart(ctx)
+  const restartSupported = restartControl.supported
   let restarting = false
   const marketplace = createMarketplace(config.profileLabel, {
     restartSupported, lifecycle: createInstalledLifecycle(ctx),
@@ -42,20 +44,20 @@ export function apply(ctx, config) {
         res.end(body); return
       }
       if (req.method === 'GET' && url.pathname === '/plugin-hub/api/marketplace') return json(res, 200, await marketplace.list())
-      if (req.method === 'GET' && url.pathname === '/plugin-hub/api/state') return json(res, 200, controller.snapshot())
+      if (req.method === 'GET' && url.pathname === '/plugin-hub/api/state') return json(res, 200, { ...controller.snapshot(), bootId: restartControl.bootId })
       if (req.method !== 'POST' || !['/plugin-hub/api/market-change', '/plugin-hub/api/restart', '/plugin-hub/api/install', '/plugin-hub/api/change', '/plugin-hub/api/call', '/plugin-hub/api/tryout'].includes(url.pathname)) return json(res, 404, { error: 'Endpoint not found.' })
       if (req.headers.origin !== `http://${authority}` || req.headers['x-plugin-hub'] !== '1' || !req.headers['content-type']?.startsWith('application/json')) return json(res, 403, { error: 'Invalid request origin.' })
       let body = ''
       for await (const chunk of req) { body += chunk; if (Buffer.byteLength(body) > 16384) return json(res, 413, { error: 'Request too large.' }) }
       const payload = JSON.parse(body)
       if (url.pathname.endsWith('/restart')) {
-        if (!restartSupported || !process.connected) return json(res, 409, { error: 'Start Harness with pnpm start to enable one-click restart.' })
+        if (!restartSupported) return json(res, 409, { error: 'This Node runtime cannot restart in place. Restart DSH in your terminal.' })
         if (marketplace.isInstalling()) return json(res, 409, { error: 'Wait for the current installation to finish.' })
         if (!restarting) {
           restarting = true
-          res.once('finish', () => process.send({ type: 'plugin-hub:restart' }))
+          res.once('finish', () => { setTimeout(() => restartControl.restart().catch(error => { console.error('Plugin Hub restart failed:', error.message); restarting = false }), 100) })
         }
-        return json(res, 202, { restarting: true, pid: process.pid })
+        return json(res, 202, { restarting: true, pid: process.pid, bootId: restartControl.bootId })
       }
       const result = url.pathname.endsWith('/market-change') ? await marketplace.change(payload.id, payload.action) : url.pathname.endsWith('/install') ? await marketplace.install(payload.id) : url.pathname.endsWith('/change') ? await controller.change(payload.id, payload.action) : url.pathname.endsWith('/tryout') ? await controller.tryout(payload.id, payload.input) : await controller.call(payload.id, payload.input)
       json(res, 200, result)

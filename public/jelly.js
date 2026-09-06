@@ -3,7 +3,14 @@ import * as THREE from './vendor/three.module.js'
 const colors = { hello: '#81b4e9', text: '#bc99df', clock: '#e4b36d' }
 const reduced = matchMedia('(prefers-reduced-motion: reduce)')
 
-export function createJelly(host, id) {
+export function createJelly(host, id, { vivid = false } = {}) {
+  const palettes = [ ['#168dff','#174b85','#9fd0ff'], ['#9953ee','#57318a','#d3b3fa'], ['#f2a20d','#745015','#f8d782'], ['#08b58c','#14634f','#8ae2c9'] ]
+  const index = ({hello:0,text:1,clock:2})[id] ?? [...id].reduce((sum,c)=>sum+c.charCodeAt(0),0)%palettes.length
+  const palette = palettes[index]
+  if (vivid) {
+    host.style.setProperty('--jelly-ink',palette[1])
+    host.style.setProperty('--jelly-tint',palette[2])
+  }
   let renderer
   try {
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' })
@@ -13,7 +20,7 @@ export function createJelly(host, id) {
   renderer.setClearColor(0xffffff, 0)
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 1.05
+  renderer.toneMappingExposure = vivid ? .86 : 1.05
   renderer.domElement.setAttribute('aria-hidden', 'true')
   host.prepend(renderer.domElement)
   host.classList.add('has-webgl')
@@ -50,7 +57,7 @@ export function createJelly(host, id) {
   shape.lineTo(-s,-s+r); shape.quadraticCurveTo(-s,-s,-s+r,-s)
   const geometry = new THREE.ExtrudeGeometry(shape, { depth: .19, bevelEnabled: true, bevelSegments: 8, steps: 1, bevelSize: .14, bevelThickness: .14, curveSegments: 18 })
   geometry.center()
-  const material = new THREE.MeshPhysicalMaterial({ color: colors[id] || ['#81b4e9','#bc99df','#9ccbb7','#e4b36d'][[...id].reduce((sum,c)=>sum+c.charCodeAt(0),0)%4], transparent: true, opacity: .55, roughness: .17, metalness: .02, clearcoat: 1, clearcoatRoughness: .13, transmission: .15, thickness: .8, ior: 1.38, envMapIntensity: .7 })
+  const material = new THREE.MeshPhysicalMaterial({ color: vivid ? palette[0] : colors[id] || ['#81b4e9','#bc99df','#9ccbb7','#e4b36d'][[...id].reduce((sum,c)=>sum+c.charCodeAt(0),0)%4], transparent: true, opacity: vivid ? .66 : .55, roughness: .17, metalness: .02, clearcoat: 1, clearcoatRoughness: .13, transmission: .15, thickness: .8, ior: 1.38, envMapIntensity: vivid ? .38 : .7 })
   const mesh = new THREE.Mesh(geometry, material)
   mesh.rotation.set(.13,-.2,-.02)
   scene.add(mesh)

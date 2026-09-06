@@ -4,16 +4,16 @@ window.__ModuleLoader__.load({id:'dsh-plugin-hub',factory:require=>{
   const glyphs={wave:'M8 12V5a1.5 1.5 0 0 1 3 0v6V3a1.5 1.5 0 0 1 3 0v8V5a1.5 1.5 0 0 1 3 0v7V9a1.5 1.5 0 0 1 3 0v6c0 5-3 7-7 7-2 0-4-1-5-3l-4-6c-1-2 1-3 2-2l2 2',text:'M5 5h14M12 5v14M8 19h8M5 8V5m14 3V5',clock:'M12 7v5l3 2',module:'M5 5h5v5H5zM14 5h5v5h-5zM5 14h5v5H5zM17 14v6m-3-3h6'}
   const svg=(name)=>h('svg',{viewBox:'0 0 24 24','aria-hidden':true},name==='clock'?h('circle',{cx:12,cy:12,r:8}):null,h('path',{d:glyphs[name]||glyphs.module}))
   let jellyModule
-  const jellyReady=import('/plugin-hub/jelly.js').then(module=>{jellyModule=module;return module})
+  const jellyReady=import('/plugin-hub/jelly.js?v=0.6.2').then(module=>{jellyModule=module;return module})
   async function api(path,data) {
     const res=await fetch('/plugin-hub/api/'+path,data?{method:'POST',headers:{'Content-Type':'application/json','X-Plugin-Hub':'1'},body:JSON.stringify(data)}:{cache:'no-store'})
     const value=await res.json();if(!res.ok)throw new Error(value.error||'Plugin Hub is unavailable.');return value
   }
   function Icon({plugin,onClick,pending,expanded,onPointerDown}) {
     const ref=useRef(null),jelly=useRef(null)
-    useEffect(()=>{let alive=true;jellyReady.then(module=>{if(alive)jelly.current=module.createJelly(ref.current,plugin.key)}).catch(()=>{});return()=>{alive=false;jelly.current?.dispose()}},[plugin.key])
+    useEffect(()=>{let alive=true;jellyReady.then(module=>{if(alive)jelly.current=module.createJelly(ref.current,plugin.key,{vivid:true})}).catch(()=>{});return()=>{alive=false;jelly.current?.dispose()}},[plugin.key])
     useEffect(()=>{if(expanded)jellyReady.then(module=>{if(ref.current)module.bounce(ref.current,'land')}).catch(()=>{})},[expanded])
-    return h('button',{className:'hub-rail-icon',type:'button','data-equipped':plugin.registered||undefined,'aria-label':`${plugin.name}, ${plugin.registered?'equipped':'available'}`,'aria-busy':pending||undefined,'aria-haspopup':'dialog',title:plugin.name,tabIndex:expanded?0:-1,disabled:pending,onClick,onPointerDown,onPointerEnter:()=>jellyModule?.bounce(ref.current,'hover'),onPointerMove:event=>{const r=ref.current.getBoundingClientRect();jelly.current?.tilt((event.clientX-r.left)/r.width-.5,(event.clientY-r.top)/r.height-.5)},onPointerLeave:()=>jelly.current?.reset()},h('span',{ref,className:'hub-rail-art'},h('span',{className:'hub-rail-fallback'}),h('span',{className:'hub-rail-glyph'},svg(plugin.icon))),h('span',{className:'hub-rail-dot','aria-hidden':true}))
+    return h('button',{className:'hub-rail-icon',type:'button','data-equipped':plugin.registered||undefined,'aria-label':`${plugin.name}, ${plugin.registered?'equipped':'available'}`,'aria-busy':pending||undefined,'aria-haspopup':'dialog',title:plugin.name,tabIndex:expanded?0:-1,disabled:pending,onClick,onPointerDown,onPointerEnter:()=>jellyModule?.bounce(ref.current,'hover'),onPointerMove:event=>{const r=ref.current.getBoundingClientRect();jelly.current?.tilt((event.clientX-r.left)/r.width-.5,(event.clientY-r.top)/r.height-.5)},onPointerLeave:()=>jelly.current?.reset()},h('span',{ref,className:'hub-rail-art'},h('span',{className:'hub-rail-fallback'}),h('span',{className:'hub-rail-glyph'},svg(plugin.icon))),expanded?h('span',{className:'hub-rail-name','aria-hidden':true},plugin.name):null)
   }
   function Rail() {
     const host=useRef(null),menu=useRef(null),buttons=useRef(null),busyRef=useRef(false),generation=useRef(0),collapseTimer=useRef(null),drag=useRef(null),suppressClick=useRef(0)
@@ -63,10 +63,10 @@ window.__ModuleLoader__.load({id:'dsh-plugin-hub',factory:require=>{
     },[expanded])
     const chosen=plugins.find(p=>p.key===selected)
     const equipped=plugins.filter(p=>p.registered),available=plugins.filter(p=>!p.registered)
-    const topHeight=Math.max(1,equipped.length)*104+38
-    const bottomY=topHeight+18,bottomHeight=Math.max(1,available.length)*104+38
+    const topHeight=Math.max(1,equipped.length)*140+38
+    const bottomY=topHeight+18,bottomHeight=Math.max(1,available.length)*140+38
     const contentHeight=bottomY+bottomHeight
-    const positions=new Map([...equipped.map((p,i)=>[p.key,{x:14,y:32+i*104}]),...available.map((p,i)=>[p.key,{x:14,y:bottomY+32+i*104}])])
+    const positions=new Map([...equipped.map((p,i)=>[p.key,{x:14,y:32+i*140}]),...available.map((p,i)=>[p.key,{x:14,y:bottomY+32+i*140}])])
     const beginDrag=(event,p)=>{
       if(!expanded||busyRef.current||!p.manageable||event.button!==0)return
       const rect=event.currentTarget.getBoundingClientRect()
@@ -113,5 +113,5 @@ window.__ModuleLoader__.load({id:'dsh-plugin-hub',factory:require=>{
       chosen&&expanded?h('section',{ref:menu,className:'hub-rail-menu',role:'dialog','aria-label':chosen.name,style:{top:Math.min(menuTop+50,innerHeight-240)}},h('div',{className:'hub-rail-menu-head'},h('strong',null,chosen.name),h('button',{type:'button','aria-label':'Close plugin actions',onClick:()=>{setSelected(null);buttons.current?.querySelector(`[data-key="${CSS.escape(chosen.key)}"] button`)?.focus()}},'×')),chosen.manageable?h('button',{className:'hub-rail-toggle',disabled:pending!==null,onClick:()=>change(chosen)},pending?'Working…':chosen.registered?'Unload':'Equip'):h('p',null,chosen.restartRequired?'Restart Harness to load this bundle.':'No controllable runtime entry.'),h('a',{href:'/plugin-hub'},'Open in Hub ↗'),error?h('p',{role:'alert'},error):null):null)
 
   }
-  return {inject:['slots'],apply(ctx){ctx.slots.inject('shell.overlay',()=>ctx.slots.register({name:'shell.overlay',id:'plugin-hub-rail',order:20},Rail))}}
+  return {inject:['slots'],apply(ctx){const stylesheet=document.querySelector('link[href^="/plugin-hub/rail.css"]');if(stylesheet)stylesheet.href='/plugin-hub/rail.css?v=0.6.4';ctx.slots.inject('shell.overlay',()=>ctx.slots.register({name:'shell.overlay',id:'plugin-hub-rail',order:20},Rail))}}
 }})

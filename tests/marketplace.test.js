@@ -10,7 +10,7 @@ test('marketplace rejects arbitrary package inputs and disabled installations', 
   const market=createMarketplace('web',{home:''})
   const list=await market.list()
   assert.ok(list.plugins.length>3000)
-  await assert.rejects(market.install(list.plugins[0].id), /explicit DSH_HOME/)
+  await assert.rejects(market.install(list.plugins[0].id), /valid Harness home/)
 })
 test('installation pins verified bundle version, serializes jobs and records actual profile state', async () => {
   const home=await mkdtemp(path.join(tmpdir(),'hub-market-'))
@@ -56,4 +56,31 @@ test('already loaded bundles do not request restart', async () => {
     const list=await market.list(), plugin=list.plugins.find(p=>p.id===item.id)
     assert.equal(plugin.restartRequired,false);assert.equal(plugin.loaded,true);assert.equal(list.restartSupported,true)
   } finally {await rm(home,{recursive:true,force:true})}
+})
+
+test('normal dsh web launch enables the marketplace without DSH_HOME', async () => {
+  const previous=process.env.DSH_HOME
+  try {
+    delete process.env.DSH_HOME
+    const market=createMarketplace('web')
+    assert.equal((await market.list()).installEnabled,true)
+    assert.equal((await createMarketplace('../other').list()).installEnabled,false)
+  } finally { if(previous===undefined)delete process.env.DSH_HOME;else process.env.DSH_HOME=previous }
+})
+test('resolved home is passed to the installer, including custom environment homes', async () => {
+  const previous=process.env.DSH_HOME, home=await mkdtemp(path.join(tmpdir(),'hub-env-home-'))
+  try {
+    process.env.DSH_HOME=home
+    const dir=path.join(home,'profiles','web');await mkdir(dir,{recursive:true})
+    let receivedHome
+    const market=createMarketplace('web',{fetchManifest:async name=>({name,version:'1.2.3',dsh:{bundle:{patch:'./cordis.yml'}}}),install:async(profile,spec,resolvedHome)=>{
+      receivedHome=resolvedHome
+      await writeFile(path.join(dir,'package.json'),JSON.stringify({dependencies:{[spec.slice(0,spec.lastIndexOf('@'))]:'1.2.3'}}))
+    }})
+    const item=(await market.list()).plugins.find(p=>p.package)
+    await market.install(item.id)
+    for(let i=0;i<50&&market.isInstalling();i++)await tick()
+    assert.equal(receivedHome,home)
+    assert.equal((await market.list()).plugins.find(p=>p.id===item.id).job.status,'installed')
+  } finally {if(previous===undefined)delete process.env.DSH_HOME;else process.env.DSH_HOME=previous;await rm(home,{recursive:true,force:true})}
 })
